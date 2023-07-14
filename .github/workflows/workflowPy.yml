@@ -1,0 +1,38 @@
+# 워크플로우 이름 
+name: Python_Version
+
+# Push, Pull_request 이벤트가 나올때 발동한다.
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    # matrix strategy를 사용하여 여러 Python 버전을 작업한다.
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9", "3.10"]
+
+
+    steps:
+      # 저장소의 코드를 체크아웃
+      - uses: actions/checkout@v3
+
+      # 각 Python 버전을 설정
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      # Python 버전을 출력하고 그 결과를 version.txt 파일에 저장
+      - name: Display Python version
+        run: python -c "import sys; print(sys.version)" > version.txt
+
+      # version.txt 파일을 아티팩트에 업로드
+      - name: Upload Python version as an artifact
+        uses: actions/upload-artifact@v2
+        with:
+          # 아티팩트의 이름을 정의
+          name: python-version-${{ matrix.python-version }}
+          # 아티팩트로 업로드할 파일의 경로를 지정
+          path: version.txt
